@@ -194,8 +194,9 @@ def decompose_word(word):
 def is_palindrome(word):
     return word == word[::-1]
 
-
-word = "초콜릿계"
+# NEARLY-IMPOSSIBLE-TODO: add support for sentences
+word = "간사"
+# word = "무긍홓"
 # word = '노사'
 # word = "국화" # TODO: add support for combined vowels
 # word = "뷁" # TODO: set the level of the anagram by 3 levels (total, allow_partial, ??)
@@ -219,9 +220,10 @@ if has_double_consonant:
         # check if convertible, any of the consonant in batchim with the initial consonant
     else:
         jamos += total_double_consonant_table[jamos[jamos.index([x for x in jamos if x in total_double_consonants][0])]]
-print(jamos)
+print(jamos, "after")
 
 # consonants = ['ㄱ', 'ㅁ', 'ㅁ', 'ㄴ']
+true_consonants = [x for x in jamos if x in total_consonants]
 consonants = [x for x in jamos if x in total_consonants or x == '!' or x in total_double_consonants]
 print(f'{consonants=}')
 # vowels = ['ㅛ', 'ㅜ']
@@ -249,7 +251,7 @@ vowel_perms = get_permutations(vowels, num_vowels_per_syllable)
 
 
 for consonant_perm in consonant_perms:
-    # print(f'{consonant_perm=}')
+    print(f'{consonant_perm=}')
     if consonant_perm[0] == "!" or consonant_perm[0] in total_double_consonants:
         continue
     skip = False
@@ -261,10 +263,14 @@ for consonant_perm in consonant_perms:
     if skip:
         continue
     for vowel_perm in vowel_perms:
-        # print(f'{vowel_perm=}')
+        print(f'{vowel_perm=}')
         syllable = ""
         is_partial_anagram = False
-        for i in range(num_syllables):
+        num_loop = num_syllables
+        # check if true consonants are odd and if the vowels has duplicates
+        if len(true_consonants) % 2 == 1 and len(set(vowel_perm)) != len(vowel_perm): # TODO: bug
+            pass
+        for i in range(num_loop):
             # if consonant_perm[i*2] == "!" or consonant_perm[i*2] in total_double_consonants:
             #     # skip = True
             #     continue
@@ -295,10 +301,8 @@ for consonant_perm in consonant_perms:
             print("append", syllable)
         else: # this never happens? maybe it does
             print("incomplete, skip", syllable)
-    # if not skip:
-    #     pass
 
-    print(f'{valid_syllables=}')
+    # print(f'{valid_syllables=}') # TODO: add logging
 
 final = []
 # Print all valid syllables
