@@ -1,4 +1,8 @@
+import dataclasses
+import logging
 import itertools
+from typing import List, Dict, Any
+
 from hgtk.letter import compose, decompose
 
 organized = {
@@ -94,7 +98,44 @@ organized = {
         'ㅔ': ['ㅓ', 'ㅣ'],
         'ㅖ': ['ㅕ', 'ㅣ']
     },
+}
 
+combinations = {
+    'vowels': {
+        ('ㅗ', 'ㅏ'): 'ㅘ',
+        ('ㅗ', 'ㅐ'): 'ㅙ',
+        ('ㅗ', 'ㅣ'): 'ㅚ',
+        ('ㅜ', 'ㅓ'): 'ㅝ',
+        ('ㅜ', 'ㅔ'): 'ㅞ',
+        ('ㅜ', 'ㅣ'): 'ㅟ',
+        ('ㅡ', 'ㅣ'): 'ㅢ',
+        ('ㅏ', 'ㅣ'): 'ㅐ',
+        ('ㅑ', 'ㅣ'): 'ㅒ',
+        ('ㅓ', 'ㅣ'): 'ㅔ',
+        ('ㅕ', 'ㅣ'): 'ㅖ',
+    },
+    'consonants': {
+        ('ㄱ', 'ㅅ'): 'ㄳ',
+        ('ㄴ', 'ㅈ'): 'ㄵ',
+        ('ㄴ', 'ㅎ'): 'ㄶ',
+        ('ㄹ', 'ㄱ'): 'ㄺ',
+        ('ㄹ', 'ㅁ'): 'ㄻ',
+        ('ㄹ', 'ㅂ'): 'ㄼ',
+        ('ㄹ', 'ㅅ'): 'ㄽ',
+        ('ㄹ', 'ㅌ'): 'ㄾ',
+        ('ㄹ', 'ㅍ'): 'ㄿ',
+        ('ㄹ', 'ㅎ'): 'ㅀ',
+        ('ㅂ', 'ㅅ'): 'ㅄ',
+        ('ㄱ', 'ㄱ'): 'ㄲ',
+        ('ㄷ', 'ㄷ'): 'ㄸ',
+        ('ㅂ', 'ㅂ'): 'ㅃ',
+        ('ㅅ', 'ㅅ'): 'ㅆ',
+        ('ㅈ', 'ㅈ'): 'ㅉ',
+    },
+    'special': { # 약간 억지
+        ('ㅗ', 'ㅏ', 'ㅣ'): 'ㅙ',
+        ('ㅜ', 'ㅓ', 'ㅣ'): 'ㅞ',
+    }
 }
 
 table = {
@@ -143,7 +184,12 @@ table = {
 total_vowels = list(organized['vowels-roman'].values()) + list(organized['half-vowels-roman'].values())
 total_consonants = list(organized['consonants-roman'].values())
 total_double_consonants = list(organized['common_double_consonants'].keys()) + list(organized['uncommon_double_consontant_batchim'].keys())
+total_double_vowels = list(organized['common_double_vowels'].keys()) + list(organized['uncommon_double_vowels'].keys())
+
+sum_of_doublers = total_double_consonants + total_double_vowels
+
 total_conversion_table = { **organized['common_double_consonants'], **organized['uncommon_double_consontant_batchim'], **organized['common_double_vowels'], **organized['uncommon_double_vowels'] }
+total_combinations = { **combinations['consonants'], **combinations['vowels'], **combinations['special'] }
 
 def transliterate_hangul(text):
     result = ''
@@ -190,11 +236,8 @@ def roman_to_hangul(text):
 
 
 def get_permutations(elements, n):
-    return [perm for perm in itertools.permutations(elements, n)]
+    return [perm for perm in itertools.permutations(elements, n)] if n > 1 else elements
 
-
-class HangulAnagrammer: # TODO: create class for this
-    pass
 
 def decompose_word(word):
     # Decompose each character in the word
@@ -207,45 +250,133 @@ def decompose_word(word):
 
 
 def is_palindrome(word):
-    return word == word[::-1]
+    return word == word[::-1] if len(word) > 1 else False
+
+
+class HangulAnagrammer: # TODO: create class for this
+    pass
 
 # NEARLY-IMPOSSIBLE-TODO: add support for sentences
-# NEARLY-IMPOSSIBLE-TODO: finding 'real' anagrams
+# NEARLY-IMPOSSIBLE-TODO: finding 'real' anagrams by using a dictionary? (maybe not), or by using a certain combination that looks like a word
 # word = "간사"
 # word = "무긍늑"
 # word = '노사'
-# word = "국화" # TODO: 1. add support for combined vowels
-word = "뷁" # TODO: 2. set the level of the anagram by using 3 options (allow_combined_consonant_exchange, allow_vowel_exchange, allow_partial_anagrams)
+# word = "국화"
+# word = "뷁" # TODO: 2. set the level of the anagram by using 3 options (allow_batchim_consonant_exchange, allow_double_vowel_exchange, allow_partial_anagrams)
+# word = "쁡"
 # word = "찰흙"
 # word = "눅눅"
 # word = "김흥국"
+# word = "으하하"
+# word = "흐갸" # TODO: 1. add support for brain-freezing vowel combinations
 # jamos = [transliterate_hangul(x) for x in [char for tup in [decompose(x) for x in word] for sub_tup in tup for char in sub_tup]]
 # jamos = [x for x in [char for tup in [decompose(x) for x in word] for sub_tup in tup for char in sub_tup]]
+
+ALLOW_BATCHIM_CONSONANT_EXCHANGE = False
+ALLOW_DOUBLE_VOWEL_EXCHANGE = False
+ALLOW_PARTIAL_ANAGRAMS = True
+
+
 if is_palindrome(word):
-    print('Palindrome detected! The results are going to be doubled!')
+    print('Palindrome detected!')
 
-jamos = ['!' if x == '' else x for x in decompose_word(word)]
-print(jamos)
 
-# if any of the elements in total_double_consonants is in jamos
-has_double_consonant = any(x in jamos for x in total_double_consonants)
-if has_double_consonant:
-    print('Double consonant detected!')
-    if len(word) == 1:
+class Jamos(list):
+
+    # info: Dict[str, Any]
+
+    jamos: List[str]
+    true_consonants: List[str]
+    consonants: List[str]
+    vowels: List[str]
+
+    alternative_consonants: List[str]
+    alternative_vowels: List[str]
+
+    has_double_consonant: bool
+    has_double_vowel: bool
+
+    def __init__(self, word):
+        super().__init__()
+        self.jamos = ['!' if x == '' else x for x in decompose_word(word)]
+        self.has_double_consonant = any(x in self.jamos for x in total_double_consonants)
+        self.has_double_vowel = any(x in self.jamos for x in total_double_vowels)
+
+        self.true_consonants = [x for x in self.jamos if x in total_consonants]
+        self.consonants = [x for x in self.jamos if x in total_consonants or x == '!' or x in total_double_consonants]
+        self.vowels = [x for x in self.jamos if x in total_vowels]
+
+        self.alternative_vowels = []
+        self.alternative_consonants = []
+
+        # self.info = {
+        #     'jamos': self.jamos,
+        #     'true_consonants': self.true_consonants,
+        #     'consonants': self.consonants,
+        #     'vowels': self.vowels,
+        #     'has_double_consonant': self.has_double_consonant,
+        # }
+
+    def __iadd__(self, other):
+        self.jamos += other
+        return self
+
+    def __iter__(self):
+        return iter(self.jamos)
+
+    def __repr__(self):
+        # return ''.join(self.jamos)
+        return str(self.jamos)
+
+
+jamos = Jamos(word)
+
+print(f"{jamos=}")
+
+
+# suggested class method. not sure if it's a good idea
+# def checking_settings(j: Jamos):
+
+if ALLOW_PARTIAL_ANAGRAMS:
+    print('Partial anagrams allowed!')
+
+    # if any of the elements in total_double_consonants is in jamos
+
+    if jamos.has_double_consonant:
+        print('Double consonant detected!')
+        # replace the detected double consonants with the alternative consonants
+        detected_double_consonants = {k: v for k, v in total_conversion_table.items() if k in jamos.consonants}
+        print(f'{detected_double_consonants=}')
+        for element in jamos.consonants:
+            if element in detected_double_consonants:
+                jamos.alternative_consonants.extend(detected_double_consonants[element])
+            else:
+                jamos.alternative_consonants.append(element)
+        print(f'{jamos.consonants=}')
+        print(f'{jamos.alternative_consonants=}')
+
+    # if any of the elements in total_double_vowels is in jamos
+    if jamos.has_double_vowel:
+        print('Double vowel detected!')
+        # replace the detected double vowels with the alternative vowels
+        detected_double_vowels = {k: v for k, v in total_conversion_table.items() if k in jamos.vowels}
+        print(f'{detected_double_vowels=}')
+        if len(detected_double_vowels) >= 1:
+            for element in jamos.vowels:
+                if element in detected_double_vowels:
+                    jamos.alternative_vowels.extend(detected_double_vowels[element])
+                else:
+                    jamos.alternative_vowels.append(element)
+        else:
+            jamos.alternative_vowels = jamos.vowels
+        print(f'{jamos.vowels=}')
+        print(f'{jamos.alternative_vowels=}')
+
+    if ALLOW_BATCHIM_CONSONANT_EXCHANGE:
         pass
-        # check if convertible, any of the consonant in batchim with the initial consonant
-    else:
-        jamos += total_conversion_table[jamos[jamos.index([x for x in jamos if x in total_double_consonants][0])]]
-print(jamos, "after")
+    if ALLOW_DOUBLE_VOWEL_EXCHANGE:
+        pass
 
-true_consonants = [x for x in jamos if x in total_consonants]
-consonants = [x for x in jamos if x in total_consonants or x == '!' or x in total_double_consonants]
-print(f'{consonants=}')
-vowels = [x for x in jamos if x in total_vowels]
-print(f'{vowels=}')
-
-# All valid syllables
-valid_syllables = []
 
 # # starting from 2 syllables
 # for c1, c2, fc1, fc2 in itertools.permutations(consonants, 4):
@@ -256,14 +387,136 @@ valid_syllables = []
 #
 #         # Append to the list of valid syllables
 #         valid_syllables.append(syllable1 + syllable2)
+
+def do_anagram(
+        jamos: Jamos, num_syllables: int, vowel_perms: List[str], consonant_perms: List[str],
+        IS_ALLOW_DOUBLE_CONSONANT_EXCHANGE: bool = False ,
+        IS_ALLOW_DOUBLE_VOWEL_EXCHANGE: bool = False,
+        IS_ALLOW_PARTIAL_ANAGRAMS: bool = False,
+    ) -> List[{str, str}]:
+
+    valid_syllables = []
+
+    for consonant_perm in consonant_perms:
+        # skipping when the first consonant is a double consonant or is null
+        skip = False
+        for i in range(0, len(consonant_perm) - 1, 2):
+            if consonant_perm[i] == "!" or consonant_perm[i] in organized['uncommon_double_consontant_batchim'].keys():
+                skip = True
+                break
+            if consonant_perm[i+1] in organized['common_double_consonants'].keys():
+                skip = True
+                break
+        if skip:
+            continue
+
+        is_partial_anagram = False
+
+        for vowel_perm in vowel_perms:
+            print(f'{vowel_perm=}')
+            print(f'{consonant_perm=}')
+            syllable = ""
+
+            # determining if the current permutation is a partial anagram
+            if [x for x in vowel_perm]+[x for x in consonant_perm] not in jamos and IS_ALLOW_PARTIAL_ANAGRAMS:
+                is_partial_anagram = True
+
+            for i in range(num_syllables):
+                # if consonant_perm[i*2] == "!" or consonant_perm[i*2] in total_double_consonants:
+                #     # skip = True
+                #     continue
+                # Form the syllable
+                # IMPROVED FILTERING ABOVE
+                print("SPLITTED : ", consonant_perm[i * 2], vowel_perm[i], consonant_perm[i * 2 + 1])
+                if consonant_perm[i * 2 + 1] == "!":
+                    syllable += compose(
+                        consonant_perm[i * 2],  # Initial consonant
+                        vowel_perm[i],  # Vowel
+                        ""
+                    )
+                else:
+                    syllable += compose(
+                        consonant_perm[i * 2],  # Initial consonant
+                        vowel_perm[i],  # Vowel
+                        consonant_perm[i * 2 + 1]  # Final consonant
+                    )
+
+            # Append to the list of valid syllables
+            print("syllable : ", syllable)
+            if len(syllable) == num_syllables:
+                if IS_ALLOW_PARTIAL_ANAGRAMS and is_partial_anagram and word != syllable:
+                    print("adding partial anagram")
+                    valid_syllables.append({"syllable": syllable, "is_partial_anagram": is_partial_anagram})
+                else:
+                    valid_syllables.append({"syllable": syllable, "is_partial_anagram": is_partial_anagram})
+            else:
+                print("incomplete, skip", syllable)
+
+    return valid_syllables
+
+
 num_syllables = len(word)
 num_consonants_per_syllable = num_syllables * 2  # 2 consonants per syllable (initial and final)
-num_vowels_per_syllable = num_syllables  # 1 vowel per syllable
+num_vowels_per_syllable = num_syllables  # 1 vowel per syllable (initial and final)
 
-consonant_perms = get_permutations(consonants, num_consonants_per_syllable)
-vowel_perms = get_permutations(vowels, num_vowels_per_syllable)
+# get all permutations of the vowels and consonants
+vowel_perms = get_permutations(jamos.vowels, num_vowels_per_syllable)
+consonant_perms = get_permutations(jamos.consonants, num_consonants_per_syllable)
+alternative_vowel_perms = get_permutations(jamos.vowels+[x for x in jamos.alternative_vowels if x not in jamos.vowels], num_vowels_per_syllable)
+alternative_consontant_perms = get_permutations(jamos.consonants+[x for x in jamos.alternative_consonants if x not in jamos.consonants], num_consonants_per_syllable)
 
-if len(true_consonants) % 2 == 1 and len(set(vowel_perms)) != len(vowel_perms):
+print(f'{alternative_consontant_perms=}')
+print(f'{alternative_vowel_perms=}')
+# match(???, ???):
+#     case (???, ???):
+
+# check if true consonants are odd and if the vowels has duplicates
+if len(jamos.true_consonants) % 2 == 1 and len(set(vowel_perms)) != len(vowel_perms):
+    vowel_perms = list(set(vowel_perms))
+print(f'{vowel_perms=}')
+
+valid_syllables = []
+
+if ALLOW_PARTIAL_ANAGRAMS:
+    print("allowing partial anagrams")
+    result1 = do_anagram(
+        jamos,
+        num_syllables,
+        alternative_vowel_perms,
+        alternative_consontant_perms,
+        ALLOW_BATCHIM_CONSONANT_EXCHANGE,
+        ALLOW_DOUBLE_VOWEL_EXCHANGE,
+        ALLOW_PARTIAL_ANAGRAMS,
+    )
+    result2 = do_anagram(
+        jamos,
+        num_syllables,
+        vowel_perms,
+        consonant_perms,
+    )
+    for e in sorted(result2+result1, key=lambda x: x['syllable']):
+        # print(e)
+        if e['syllable'] not in [x['syllable'] for x in valid_syllables]:
+            valid_syllables.append(e)
+
+else:
+    print("not allowing partial anagrams")
+    valid_syllables += do_anagram(
+        jamos,
+        num_syllables,
+        vowel_perms,
+        consonant_perms,
+    )
+
+
+'''
+
+'''
+
+''' old code 2
+print(" ====== ")
+# check if true consonants are odd and if the vowels has duplicates
+if len(jamos.true_consonants) % 2 == 1 and len(set(vowel_perms)) != len(vowel_perms):
     vowel_perms = list(set(vowel_perms))
 print(f'{vowel_perms=}')
 
@@ -280,19 +533,31 @@ for consonant_perm in consonant_perms:
         continue
 
     for vowel_perm in vowel_perms:
+        print(f'{vowel_perm=}')
         syllable = ""
-        is_partial_anagram = False
-        # check if true consonants are odd and if the vowels has duplicates
+
+        exist_double_consonant_in_part = True if any(x in consonant_perm for x in total_double_consonants) else False
+        print(f'{exist_double_consonant_in_part=}')
+
+        exist_double_vowel_in_part = True if any(x in vowel_perm for x in total_double_vowels) else False
+        print(f'{exist_double_vowel_in_part=}')
+
+        exist_batchim_double_consonant_in_part = True if any(x in consonant_perm for x in total_double_consonants) else False
+        print(f'{exist_batchim_double_consonant_in_part=}')
+
+        if (exist_double_consonant_in_part or exist_double_vowel_in_part) or (jamos.has_double_consonant or jamos.has_double_vowel):
+            is_partial_anagram = True
+        else:
+            is_partial_anagram = False
+        print(f'{is_partial_anagram=}')
+
         for i in range(num_syllables):
             # if consonant_perm[i*2] == "!" or consonant_perm[i*2] in total_double_consonants:
             #     # skip = True
             #     continue
             # Form the syllable
             # IMPROVED FILTERING ABOVE
-            if consonant_perm[i * 2 + 1] in total_double_consonants:
-                # print("batchim double consonant detected")
-                is_partial_anagram = True
-            print(consonant_perm[i * 2], vowel_perm[i], consonant_perm[i * 2 + 1])
+            print("SPLITTED : ", consonant_perm[i * 2], vowel_perm[i], consonant_perm[i * 2 + 1])
             if consonant_perm[i*2+1] == "!":
                 syllable += compose(
                     consonant_perm[i*2],  # Initial consonant
@@ -305,25 +570,38 @@ for consonant_perm in consonant_perms:
                     vowel_perm[i],  # Vowel
                     consonant_perm[i*2 + 1]  # Final consonant
                 )
-            # syllable += compose(
+
         # Append to the list of valid syllables
         if len(syllable) == num_syllables:
-            if not is_partial_anagram and has_double_consonant:
-                syllable += "* (partial anagram)"
-            valid_syllables.append(syllable)
+            if ALLOW_PARTIAL_ANAGRAMS:
+                if is_partial_anagram and jamos.has_double_consonant:
+                    valid_syllables.append(syllable + "* (partial anagram)")
+            else:
+                if not is_partial_anagram:
+                    valid_syllables.append(syllable)
+
             print("append", syllable)
         else: # this never happens? maybe it does
             print("incomplete, skip", syllable)
 
     # print(f'{valid_syllables=}') # TODO: add logging
+'''
 
 final = []
-# Print all valid syllables
-for syllable in valid_syllables:
-    final.append(syllable)
-    print(syllable)
+for e in valid_syllables:
+    if e not in final:
+        final.append(e)
 
-print(len(final))
+count = 0
+for fi in final:
+    # print(fi)
+    count += 1
+    if fi['is_partial_anagram']:
+        print(fi['syllable'] + "*")
+    else:
+        print(fi['syllable'])
+
+print(count)
 
 
 """ old file
