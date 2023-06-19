@@ -154,9 +154,9 @@ def transliterate_hangul(text):
 
 def roman_to_hangul(text):
     conversion_table = {
-        **organized['half-vowels'],
-        **organized['vowels'],
-        **organized['consonants'],
+        **organized['half-vowels-roman'],
+        **organized['vowels-roman'],
+        **organized['consonants-roman'],
     }
 
     result = ''
@@ -327,38 +327,6 @@ print(len(final))
 
 
 """ old file
-
-    result = ''
-    i = 0
-    while i < len(text):
-        # Check for longer syllables first
-        if i < len(text) - 2 and text[i:i + 3].lower() in conversion_table:
-            result += conversion_table[text[i:i + 3].lower()]
-            i += 3
-        elif i < len(text) - 1 and text[i:i + 2].lower() in conversion_table:
-            result += conversion_table[text[i:i + 2].lower()]
-            i += 2
-        elif text[i].lower() in conversion_table:
-            result += conversion_table[text[i].lower()]
-            i += 1
-        else:
-            result += text[i]
-            i += 1
-
-    total_vowels = list(organized['vowels'].values()) + list(organized['half-vowels'].values())
-    # Add filler consonant if the first character of each split words is a vowel
-    for words in result.split(' '):
-        if words[0] in total_vowels:
-            result = result.replace(words, 'ㅇ' + words)
-
-
-    for i in range(len(result) - 1):
-        # if two vowel jamos consecute, add a filler consonant
-        if result[i] in total_vowels and result[i + 1] in total_vowels:
-            result = result[:i + 1] + 'ㅇ' + result[i + 1:]
-
-    return result
-
 
 # Define the decomposition of the word into jamos
 word = '굠문'
