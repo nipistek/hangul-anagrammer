@@ -195,7 +195,7 @@ def is_palindrome(word):
     return word == word[::-1]
 
 
-word = ""
+word = "초콜릿계"
 # word = '노사'
 # word = "국화" # TODO: add support for combined vowels
 # word = "뷁" # TODO: set the level of the anagram by 3 levels (total, allow_partial, ??)
@@ -249,19 +249,19 @@ vowel_perms = get_permutations(vowels, num_vowels_per_syllable)
 
 
 for consonant_perm in consonant_perms:
-    print(f'{consonant_perm=}')
-    # TODO: more than 2 syllables
+    # print(f'{consonant_perm=}')
     if consonant_perm[0] == "!" or consonant_perm[0] in total_double_consonants:
         continue
-    if len(word) % 2 == 1:
-        if consonant_perm[num_consonants_per_syllable - 1] == "!" or consonant_perm[num_consonants_per_syllable - 1] in total_double_consonants:
-            continue
-    else:
-        if consonant_perm[num_consonants_per_syllable - 2] == "!" or consonant_perm[num_consonants_per_syllable - 2] in total_double_consonants:
-            continue
-    # skip = False
+    skip = False
+    for i in range(0,len(consonant_perm)-1, 2):
+        # if consonant_perm[num_consonants_per_syllable -1 ] == "!" or consonant_perm[num_consonants_per_syllable -1 ] in total_double_consonants:
+        if consonant_perm[i] == "!" or consonant_perm[i] in total_double_consonants:
+            skip = True
+            break
+    if skip:
+        continue
     for vowel_perm in vowel_perms:
-        print(f'{vowel_perm=}')
+        # print(f'{vowel_perm=}')
         syllable = ""
         is_partial_anagram = False
         for i in range(num_syllables):
