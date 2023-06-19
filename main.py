@@ -195,6 +195,7 @@ def is_palindrome(word):
     return word == word[::-1]
 
 # NEARLY-IMPOSSIBLE-TODO: add support for sentences
+# NEARLY-IMPOSSIBLE-TODO: finding 'real' anagrams
 # word = "간사"
 # word = "무긍늑"
 # word = '노사'
