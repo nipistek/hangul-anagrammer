@@ -140,10 +140,10 @@ table = {
     'ㅎ': 'h',
 }
 
-total_vowels = list(organized['vowels'].values()) + list(organized['half-vowels'].values())
-total_consonants = list(organized['consonants'].values())
+total_vowels = list(organized['vowels-roman'].values()) + list(organized['half-vowels-roman'].values())
+total_consonants = list(organized['consonants-roman'].values())
 total_double_consonants = list(organized['common_double_consonants'].keys()) + list(organized['uncommon_double_consontant_batchim'].keys())
-total_conversion_table = {**organized['half-vowels'], **organized['vowels'], **organized['consonants'], **organized['common_double_consonants'], **organized['uncommon_double_consontant_batchim'], **organized['common_double_vowels']}
+total_conversion_table = { **organized['common_double_consonants'], **organized['uncommon_double_consontant_batchim'], **organized['common_double_vowels'], **organized['uncommon_double_vowels'] }
 
 def transliterate_hangul(text):
     result = ''
@@ -214,8 +214,8 @@ def is_palindrome(word):
 # word = "간사"
 # word = "무긍늑"
 # word = '노사'
-word = "국화" # TODO: 1. add support for combined vowels
-# word = "뷁" # TODO: 2. set the level of the anagram by using 3 options (allow_combined_consonant_exchange, allow_vowel_exchange, allow_partial_anagrams)
+# word = "국화" # TODO: 1. add support for combined vowels
+word = "뷁" # TODO: 2. set the level of the anagram by using 3 options (allow_combined_consonant_exchange, allow_vowel_exchange, allow_partial_anagrams)
 # word = "찰흙"
 # word = "눅눅"
 # word = "김흥국"
