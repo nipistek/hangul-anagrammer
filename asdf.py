@@ -195,8 +195,9 @@ def is_palindrome(word):
     return word == word[::-1]
 
 
+word = ""
 # word = '노사'
-word = "국화" # TODO: add support for combined vowels
+# word = "국화" # TODO: add support for combined vowels
 # word = "뷁" # TODO: set the level of the anagram by 3 levels (total, allow_partial, ??)
 # word = "찰흙"
 # word = "눅눅"
@@ -248,6 +249,8 @@ vowel_perms = get_permutations(vowels, num_vowels_per_syllable)
 
 
 for consonant_perm in consonant_perms:
+    print(f'{consonant_perm=}')
+    # TODO: more than 2 syllables
     if consonant_perm[0] == "!" or consonant_perm[0] in total_double_consonants:
         continue
     if len(word) % 2 == 1:
@@ -258,6 +261,7 @@ for consonant_perm in consonant_perms:
             continue
     # skip = False
     for vowel_perm in vowel_perms:
+        print(f'{vowel_perm=}')
         syllable = ""
         is_partial_anagram = False
         for i in range(num_syllables):
