@@ -178,7 +178,7 @@ def get_permutations(elements, n):
     return [perm for perm in itertools.permutations(elements, n)]
 
 
-class HangulAnagrammer:
+class HangulAnagrammer: # TODO: create class for this
     pass
 
 def decompose_word(word):
@@ -195,11 +195,11 @@ def is_palindrome(word):
     return word == word[::-1]
 
 # NEARLY-IMPOSSIBLE-TODO: add support for sentences
-word = "간사"
+# word = "간사"
 # word = "무긍늑"
 # word = '노사'
-# word = "국화" # TODO: add support for combined vowels
-# word = "뷁" # TODO: set the level of the anagram by 3 levels (total, allow_partial, ??)
+word = "국화" # TODO: 1. add support for combined vowels
+# word = "뷁" # TODO: 2. set the level of the anagram by using 3 options (allow_combined_consonant_exchange, allow_vowel_exchange, allow_partial_anagrams)
 # word = "찰흙"
 # word = "눅눅"
 # word = "김흥국"
@@ -222,11 +222,9 @@ if has_double_consonant:
         jamos += total_double_consonant_table[jamos[jamos.index([x for x in jamos if x in total_double_consonants][0])]]
 print(jamos, "after")
 
-# consonants = ['ㄱ', 'ㅁ', 'ㅁ', 'ㄴ']
 true_consonants = [x for x in jamos if x in total_consonants]
 consonants = [x for x in jamos if x in total_consonants or x == '!' or x in total_double_consonants]
 print(f'{consonants=}')
-# vowels = ['ㅛ', 'ㅜ']
 vowels = [x for x in jamos if x in total_vowels]
 print(f'{vowels=}')
 
@@ -259,7 +257,6 @@ for consonant_perm in consonant_perms:
         continue
     skip = False
     for i in range(0,len(consonant_perm)-1, 2):
-        # if consonant_perm[num_consonants_per_syllable -1 ] == "!" or consonant_perm[num_consonants_per_syllable -1 ] in total_double_consonants:
         if consonant_perm[i] == "!" or consonant_perm[i] in total_double_consonants:
             skip = True
             break
