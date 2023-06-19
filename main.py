@@ -2,7 +2,7 @@ import itertools
 from hgtk.letter import compose, decompose
 
 organized = {
-    'half-vowels': {
+    'half-vowels-roman': {
         'yeo': 'ㅕ',
         'ye': 'ㅖ',
         'yo': 'ㅛ',
@@ -13,7 +13,7 @@ organized = {
         'wi': 'ㅟ',
         'weo': 'ㅝ',
     },
-    'vowels': {
+    'vowels-roman': {
         'ae': 'ㅐ',
         'e': 'ㅔ',
         'i': 'ㅣ',
@@ -23,7 +23,7 @@ organized = {
         'eo': 'ㅓ',
         'eu': 'ㅡ',
     },
-    'consonants': {
+    'consonants-roman': {
         'ng': 'ㅇ',
         'kk': 'ㄲ',
         'tt': 'ㄸ',
