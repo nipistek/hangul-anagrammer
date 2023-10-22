@@ -1,1 +1,2 @@
-hgtk~=0.2.0
+hgtk==0.2.1 ; python_version >= "3.11" and python_version < "4.0" \
+    --hash=sha256:f3e33dacf6ab2564f6257418b718e2c7a4ae9fffa32e18d6c4f6278b72ba73ee
